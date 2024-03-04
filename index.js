@@ -20,7 +20,7 @@ connect(process.env.MONGO_URL || "")
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (req, res) => res.send("FFx Backend"));
+app.get("/", (req, res) => res.send("Fit Pro Backend"));
 app.use("/auth", users);
 app.listen(9000, () => console.log("Server ready on port 8080."));
 

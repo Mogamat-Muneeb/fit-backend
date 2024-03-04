@@ -169,4 +169,57 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+router.delete("/delete-user/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    return res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "An error occurred" });
+  }
+});
+
+router.put("/update-user/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { email, password, phone } = req.body;
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user fields if provided in the request body
+    if (email) {
+      user.email = email;
+    }
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+    if (phone) {
+      user.phone = phone;
+    }
+
+    // Save the updated user
+    await user.save();
+
+    return res.json({ message: "User updated successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "An error occurred" });
+  }
+});
+
 module.exports = router;

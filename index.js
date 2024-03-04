@@ -22,6 +22,6 @@ app.use(cors());
 
 app.get("/", (req, res) => res.send("Fit Pro Backend"));
 app.use("/auth", users);
-app.listen(9000, () => console.log("Server ready on port 8080."));
+app.listen(9000, () => console.log("Server ready on port 9000."));
 
 module.exports = app;

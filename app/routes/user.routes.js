@@ -12,6 +12,39 @@ const router = express.Router();
 
 console.log("testing env", process.env.ACCESS_TOKEN_SECRET);
 
+
+// !ALL_USERS_ROUTE
+router.get("/users", async (req, res) => {
+  try {
+    const users = await User.find({}, { password: 0 });
+
+    res.json(users);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+});
+
+// !GET_USER_BY_ID_ROUTE
+router.get("/users/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Fetch the user by ID from the database
+    const user = await User.findById(userId, { password: 0 }); // Exclude password field
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send the user as a response
+    res.json(user);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+});
+
 // !LOGIN_ROUTE
 router.post("/login", async (req, res) => {
   try {
@@ -169,6 +202,8 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+
+// !DELETE_USER_ROUTE
 router.delete("/delete-user/:id", async (req, res) => {
   try {
     const userId = req.params.id;
@@ -189,18 +224,18 @@ router.delete("/delete-user/:id", async (req, res) => {
   }
 });
 
+
+// !UPDATE_USER_ROUTE
 router.put("/update-user/:id", async (req, res) => {
   try {
     const userId = req.params.id;
     const { email, password, phone } = req.body;
 
-    // Check if the user exists
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update user fields if provided in the request body
     if (email) {
       user.email = email;
     }

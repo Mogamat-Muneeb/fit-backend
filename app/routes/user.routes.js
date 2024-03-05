@@ -12,7 +12,6 @@ const router = express.Router();
 
 console.log("testing env", process.env.ACCESS_TOKEN_SECRET);
 
-
 // !ALL_USERS_ROUTE
 router.get("/users", async (req, res) => {
   try {
@@ -46,6 +45,44 @@ router.get("/users/:id", async (req, res) => {
 });
 
 // !LOGIN_ROUTE
+// router.post("/login", async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User Not found." });
+//     }
+
+//     const passwordIsValid = bcrypt.compareSync(password, user.password);
+//     if (!passwordIsValid) {
+//       return res
+//         .status(401)
+//         .json({ accessToken: null, message: "Invalid Password!" });
+//     }
+
+//     const token = jwt.sign(
+//       { _id: user._id, role: user.role },
+//       process.env.ACCESS_TOKEN_SECRET || "",
+//       {
+//         expiresIn: 86400,
+//       }
+//     );
+
+//     res.status(200).json({
+//       _id: user._id,
+//       username: user.username,
+//       email: user.email,
+//       role: user.role,
+//       phone_number: user.phone_number,
+//       accessToken: token,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// });
+// !LOGIN_ROUTE
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -71,6 +108,11 @@ router.post("/login", async (req, res) => {
       }
     );
 
+    // Check if the logged-in user is an admin
+    if (user.role !== 'admin') {
+      return res.status(403).json({ message: "Access denied. Only admins are allowed." });
+    }
+
     res.status(200).json({
       _id: user._id,
       username: user.username,
@@ -84,11 +126,58 @@ router.post("/login", async (req, res) => {
   }
 });
 
+
+// !REGISTER_ROUTE
+// router.post("/register", async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     console.log("🚀 ~ router.post ~ req.body:", req.body);
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({ message: "User already exists." });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     const newUser = new User({
+//       email,
+//       password: hashedPassword,
+//     });
+
+//     await newUser.save();
+
+//     const token = jwt.sign(
+//       { _id: newUser._id, role: newUser.role },
+//       process.env.ACCESS_TOKEN_SECRET || "",
+//       {
+//         expiresIn: 86400,
+//       }
+//     );
+
+//     res.status(201).json({
+//       _id: newUser._id,
+//       username: newUser.username,
+//       email: newUser.email,
+//       role: newUser.role,
+//       phone_number: newUser.phone_number,
+//       accessToken: token,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// });
+
 // !REGISTER_ROUTE
 router.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("🚀 ~ router.post ~ req.body:", req.body);
+
+    // Check if there are any existing users with admin role
+    const existingAdmin = await User.findOne({ role: 'admin' });
+
+    // Determine the role for the new user
+    const role = existingAdmin ? 'user' : 'admin';
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -100,6 +189,7 @@ router.post("/register", async (req, res) => {
     const newUser = new User({
       email,
       password: hashedPassword,
+      role, // Assign role to the new user
     });
 
     await newUser.save();
@@ -124,6 +214,7 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 
 // !FORGOT-PASSWORD_ROUTE
 router.post("/forgot-password", async (req, res) => {
@@ -202,7 +293,6 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-
 // !DELETE_USER_ROUTE
 router.delete("/delete-user/:id", async (req, res) => {
   try {
@@ -223,7 +313,6 @@ router.delete("/delete-user/:id", async (req, res) => {
     return res.status(500).json({ message: "An error occurred" });
   }
 });
-
 
 // !UPDATE_USER_ROUTE
 router.put("/update-user/:id", async (req, res) => {

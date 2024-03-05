@@ -7,7 +7,6 @@ dotenv.config();
 const router = express.Router();
 
 // !GETALLCOMMENTS_POST_ROUTE
-
 router.get("/:postId/comment", async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -21,6 +20,7 @@ router.get("/:postId/comment", async (req, res) => {
     res.status(500).json({ message: "An error occurred" });
   }
 });
+
 // !GETCOMMENTSBYID_POST_ROUTE
 router.get("/:postId/comment/:commentId", async (req, res) => {
   try {
@@ -65,7 +65,6 @@ router.post("/:postId/comment", authenticateUser, async (req, res) => {
 });
 
 // !UPDATE_COMMENT_POST_ROUTE
-// Route to update a comment
 router.put(
   "/:postId/comment/:commentId",
   authenticateUser,
@@ -125,7 +124,6 @@ router.delete(
 );
 
 // !DELETE_COMMENTALL_POST_ROUTE
-
 router.delete("/:postId/comments", authenticateUser, async (req, res) => {
   try {
     const { postId } = req.params;

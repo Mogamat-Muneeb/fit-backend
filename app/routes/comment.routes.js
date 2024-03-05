@@ -6,6 +6,8 @@ const Comment = require("../models/Comment");
 dotenv.config();
 const router = express.Router();
 
+// !GETALLCOMMENTS_POST_ROUTE
+
 router.get("/:postId/comment", async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -19,7 +21,7 @@ router.get("/:postId/comment", async (req, res) => {
     res.status(500).json({ message: "An error occurred" });
   }
 });
-
+// !GETCOMMENTSBYID_POST_ROUTE
 router.get("/:postId/comment/:commentId", async (req, res) => {
   try {
     const { postId, commentId } = req.params;
@@ -38,6 +40,8 @@ router.get("/:postId/comment/:commentId", async (req, res) => {
   }
 });
 
+
+// !CREATE_COMMENT_POST_ROUTE
 router.post("/:postId/comment", authenticateUser, async (req, res) => {
   try {
     const { commenter_name, comment_text } = req.body;
@@ -60,6 +64,7 @@ router.post("/:postId/comment", authenticateUser, async (req, res) => {
   }
 });
 
+// !UPDATE_COMMENT_POST_ROUTE
 // Route to update a comment
 router.put(
   "/:postId/comment/:commentId",
@@ -84,6 +89,8 @@ router.put(
   }
 );
 
+
+// !DELETE_COMMENT_POST_ROUTE
 router.delete(
   "/:postId/comment/:commentId",
   authenticateUser,
@@ -116,5 +123,35 @@ router.delete(
     }
   }
 );
+
+// !DELETE_COMMENTALL_POST_ROUTE
+
+router.delete("/:postId/comments", authenticateUser, async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    // Check if the user is an admin
+    if (!req.userRole) {
+      // If the user is not an admin, return forbidden
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to perform this action" });
+    }
+
+    // Find and delete all comments for the specified post
+    const deleteResult = await Comment.deleteMany({ postId });
+
+    if (deleteResult.deletedCount > 0) {
+      return res.json({ message: "All comments deleted successfully" });
+    } else {
+      return res
+        .status(404)
+        .json({ message: "No comments found for the specified post" });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+});
 
 module.exports = router;

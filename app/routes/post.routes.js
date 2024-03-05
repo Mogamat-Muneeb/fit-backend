@@ -12,6 +12,8 @@ const authenticateUser = require("../middleware/auth.jwt");
 dotenv.config();
 const router = express.Router();
 
+
+// !ALL_POST_ROUTE
 router.get("/all", async (req, res) => {
   try {
     const posts = await Post.find({});
@@ -22,6 +24,8 @@ router.get("/all", async (req, res) => {
   }
 });
 
+
+// !GET_POSTBYID_ROUTE
 router.get("/post/:postId", async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -38,6 +42,8 @@ router.get("/post/:postId", async (req, res) => {
   }
 });
 
+
+// !CREATE_POST_ROUTE
 router.post("/create", authenticateUser, async (req, res) => {
   try {
     const {
@@ -67,6 +73,8 @@ router.post("/create", authenticateUser, async (req, res) => {
   }
 });
 
+
+// !UPDATE_POST_ROUTE
 router.put("/update/:postId", authenticateUser, async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -102,6 +110,8 @@ router.put("/update/:postId", authenticateUser, async (req, res) => {
     res.status(500).json({ message: "An error occurred" });
   }
 });
+
+// !DELETE_POST_ROUTE
 
 router.delete("/delete/:postId", authenticateUser, async (req, res) => {
   try {

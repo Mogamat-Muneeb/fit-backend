@@ -45,44 +45,6 @@ router.get("/users/:id", async (req, res) => {
 });
 
 // !LOGIN_ROUTE
-// router.post("/login", async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     const user = await User.findOne({ email });
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User Not found." });
-//     }
-
-//     const passwordIsValid = bcrypt.compareSync(password, user.password);
-//     if (!passwordIsValid) {
-//       return res
-//         .status(401)
-//         .json({ accessToken: null, message: "Invalid Password!" });
-//     }
-
-//     const token = jwt.sign(
-//       { _id: user._id, role: user.role },
-//       process.env.ACCESS_TOKEN_SECRET || "",
-//       {
-//         expiresIn: 86400,
-//       }
-//     );
-
-//     res.status(200).json({
-//       _id: user._id,
-//       username: user.username,
-//       email: user.email,
-//       role: user.role,
-//       phone_number: user.phone_number,
-//       accessToken: token,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// });
-// !LOGIN_ROUTE
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -108,11 +70,6 @@ router.post("/login", async (req, res) => {
       }
     );
 
-    // Check if the logged-in user is an admin
-    if (user.role !== 'admin') {
-      return res.status(403).json({ message: "Access denied. Only admins are allowed." });
-    }
-
     res.status(200).json({
       _id: user._id,
       username: user.username,
@@ -125,6 +82,49 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+// !LOGIN_ROUTE
+// router.post("/login", async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User Not found." });
+//     }
+
+//     const passwordIsValid = bcrypt.compareSync(password, user.password);
+//     if (!passwordIsValid) {
+//       return res
+//         .status(401)
+//         .json({ accessToken: null, message: "Invalid Password!" });
+//     }
+
+//     const token = jwt.sign(
+//       { _id: user._id, role: user.role },
+//       process.env.ACCESS_TOKEN_SECRET || "",
+//       {
+//         expiresIn: 86400,
+//       }
+//     );
+
+//     // Check if the logged-in user is an admin
+//     if (user.role !== 'admin') {
+//       return res.status(403).json({ message: "Access denied. Only admins are allowed." });
+//     }
+
+//     res.status(200).json({
+//       _id: user._id,
+//       username: user.username,
+//       email: user.email,
+//       role: user.role,
+//       phone_number: user.phone_number,
+//       accessToken: token,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// });
 
 
 // !REGISTER_ROUTE

@@ -7,47 +7,10 @@ const ResetToken = require("../models/ResetToken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const Post = require("../models/Post");
+const authenticateUser = require("../middleware/auth.jwt");
 
 dotenv.config();
 const router = express.Router();
-
-// Middleware to authenticate user
-// const authenticateUser = (req, res, next) => {
-//   const token = req.headers.authorization;
-//   if (!token) {
-//     return res
-//       .status(401)
-//       .json({ message: "Access denied. No token provided." });
-//   }
-
-//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-//     if (err) {
-//       return res.status(403).json({ message: "Failed to authenticate token." });
-//     }
-//     req.userId = decoded._id;
-//     next();
-//   });
-// };
-
-// Middleware to authenticate user
-const authenticateUser = (req, res, next) => {
-  const token = req.headers.authorization;
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Access denied. No token provided." });
-  }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    console.log("🚀 ~ jwt.verify ~ decoded:", decoded.role);
-    if (err) {
-      return res.status(403).json({ message: "Failed to authenticate token." });
-    }
-    req.userId = decoded._id;
-    req.userRole = decoded.role || "user"; // Default to 'user' role if role is not present
-    next();
-  });
-};
 
 router.get("/all", async (req, res) => {
   try {
@@ -128,15 +91,17 @@ router.delete("/delete/:postId", authenticateUser, async (req, res) => {
   try {
     const postId = req.params.postId;
     const post = await Post.findById(postId);
-    console.log("🚀 ~ router.delete ~ post:", post)
+    console.log("🚀 ~ router.delete ~ post:", post);
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
-    console.log("user id" , req)
+    console.log("user id", req);
 
     // Check if the user is the creator of the post or an admin
     if (post.publisher_id !== req.userId && req.userRole !== "admin") {
-        return res.status(403).json({ message: "Unauthorized to delete this post" });
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this post" });
     }
 
     await Post.findByIdAndDelete(postId);

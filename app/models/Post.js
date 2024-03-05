@@ -11,7 +11,6 @@ const postSchema = new Schema(
     publisher_id: {
       type: String,
       required: true,
-      unique: true,
     },
     publisher_profile_picture: {
       type: String,

@@ -22,6 +22,22 @@ router.get("/all", async (req, res) => {
   }
 });
 
+router.get("/post/:postId", async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.json(post);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+});
+
 router.post("/create", authenticateUser, async (req, res) => {
   try {
     const {
